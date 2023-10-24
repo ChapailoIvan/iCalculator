@@ -9,6 +9,6 @@ import androidx.compose.runtime.Composable
 @Composable
 fun CalculatorScreenTopBar() {
     LargeTopAppBar(
-        title = { Text(text = "iCalculator") }
+        title = { Text(text = "Чапайло Иван, 4 курс, 4 группа, 2023") }
     )
 }

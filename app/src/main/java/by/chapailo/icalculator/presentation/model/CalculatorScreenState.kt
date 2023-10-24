@@ -4,9 +4,9 @@ import by.chapailo.icalculator.domain.Operator
 
 data class CalculatorScreenState(
     val firstNumber: String = "",
-    val isFirstNumberValid: Boolean = true,
+    val isFirstNumberValid: Boolean = false,
     val secondNumber: String = "",
-    val isSecondNumberValid: Boolean = true,
+    val isSecondNumberValid: Boolean = false,
     val resultNumber: String = "",
     val operator: Operator = Operator.PLUS
 )
