@@ -8,15 +8,15 @@ import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
 
 @Composable
-fun CollectWithLifecycle(
-    collectBlock: suspend () -> Unit
+fun WithLifecycle(
+    block: suspend () -> Unit
 ) {
     val lifecycle = LocalLifecycleOwner.current
 
     LaunchedEffect(Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
             launch {
-                collectBlock()
+                block()
             }
         }
     }

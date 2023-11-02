@@ -1,30 +1,19 @@
 package by.chapailo.icalculator.presentation
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import by.chapailo.icalculator.domain.Operator
-import by.chapailo.icalculator.presentation.composables.Divide
 import by.chapailo.icalculator.presentation.composables.NumberField
+import by.chapailo.icalculator.presentation.composables.OperationRow
+import by.chapailo.icalculator.presentation.composables.RoundingModePicker
 import by.chapailo.icalculator.presentation.model.Action
 import by.chapailo.icalculator.presentation.model.CalculatorScreenState
 import by.chapailo.icalculator.presentation.model.Event
@@ -43,8 +32,9 @@ fun CalculationScreen(
 
     val state: State<CalculatorScreenState> =
         stateFlow.collectAsState()
+    val scrollState = rememberScrollState()
 
-    CollectWithLifecycle {
+    WithLifecycle {
         eventFlow.collectLatest { event ->
             when (event) {
                 is Event.ShowSnackbar ->
@@ -53,60 +43,82 @@ fun CalculationScreen(
         }
     }
 
-    Column(modifier = modifier) {
+    Column(modifier = modifier.verticalScroll(scrollState).imePadding()) {
         NumberField(
             value = state.value.firstNumber,
-            onValueChange = { newFirstNumber -> onAction(Action.FirstNumberChange(newFirstNumber)) },
+            onValueChange = { newFirstNumber ->
+                onAction(
+                    Action.NumberChange(
+                        numberId = 1,
+                        value = newFirstNumber
+                    )
+                )
+            },
             isError = !state.value.isFirstNumberValid && state.value.firstNumber.isNotEmpty(),
             placeholder = "First number"
         )
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            OperationButton(
-                operator = Operator.PLUS,
-                enabled = state.value.operator == Operator.PLUS,
-                imageVector = Icons.Default.Add,
-                onAction = onAction
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            OperationButton(
-                operator = Operator.MINUS,
-                enabled = state.value.operator == Operator.MINUS,
-                imageVector = Icons.Default.Remove,
-                onAction = onAction
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            OperationButton(
-                operator = Operator.MULTIPLY,
-                enabled = state.value.operator == Operator.MULTIPLY,
-                imageVector = Icons.Default.Close,
-                onAction = onAction
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            OperationButton(
-                operator = Operator.DIVIDE,
-                enabled = state.value.operator == Operator.DIVIDE,
-                imageVector = Divide,
-                onAction = onAction
-            )
-        }
+        OperationRow(
+            activeOperator = state.value.operator1,
+            onOperatorChange = { operator ->
+                onAction(Action.RowOperatorChange(rowId = 1, operator = operator))
+            }
+        )
 
         NumberField(
             value = state.value.secondNumber,
-            onValueChange = { newSecondNumber -> onAction(Action.SecondNumberChange(newSecondNumber)) },
-            isError = !state.value.isSecondNumberValid && state.value.firstNumber.isNotEmpty(),
+            onValueChange = { newSecondNumber ->
+                onAction(
+                    Action.NumberChange(
+                        numberId = 2,
+                        value = newSecondNumber
+                    )
+                )
+            },
+            isError = !state.value.isSecondNumberValid && state.value.secondNumber.isNotEmpty(),
             placeholder = "Second number"
+        )
+
+        OperationRow(
+            activeOperator = state.value.operator2,
+            onOperatorChange = { operator ->
+                onAction(Action.RowOperatorChange(rowId = 2, operator = operator))
+            }
+        )
+
+        NumberField(
+            value = state.value.thirdNumber,
+            onValueChange = { newThirdNumber ->
+                onAction(
+                    Action.NumberChange(
+                        numberId = 3,
+                        value = newThirdNumber
+                    )
+                )
+            },
+            isError = !state.value.isThirdNumberValid && state.value.thirdNumber.isNotEmpty(),
+            placeholder = "Third number"
+        )
+
+        OperationRow(
+            activeOperator = state.value.operator3,
+            onOperatorChange = { operator ->
+                onAction(Action.RowOperatorChange(rowId = 3, operator = operator))
+            }
+        )
+
+        NumberField(
+            value = state.value.fourthNumber,
+            onValueChange = { newFourthNumber ->
+                onAction(
+                    Action.NumberChange(
+                        numberId = 4,
+                        value = newFourthNumber
+                    )
+                )
+            },
+            isError = !state.value.isFourthNumberValid && state.value.fourthNumber.isNotEmpty(),
+            placeholder = "Fourth number"
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -117,28 +129,29 @@ fun CalculationScreen(
             placeholder = "Result",
             readOnly = true
         )
-    }
-}
 
-@Composable
-private fun OperationButton(
-    operator: Operator,
-    enabled: Boolean,
-    imageVector: ImageVector,
-    onAction: (Action.OperatorChange) -> Unit
-) {
-    Button(
-        onClick = { onAction(Action.OperatorChange(operator)) },
-        content = { Icon(imageVector = imageVector, contentDescription = "$operator") },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (enabled)
-                MaterialTheme.colorScheme.primary
-            else
-                MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = if (enabled)
-                MaterialTheme.colorScheme.onPrimary
-            else
-                MaterialTheme.colorScheme.onSurface
+        Spacer(modifier = Modifier.height(16.dp))
+
+        RoundingModePicker(
+            values = state.value.roundingModes,
+            expanded = state.value.isRoundingModesPickerExpanded,
+            pickedValue = state.value.pickedRoundingMode,
+            onExpandedChange = { _ ->
+                onAction(Action.RoundingModePickerClick)
+            },
+            onValueChange = { roundingModeUi ->
+                onAction(Action.RoundingModePick(roundingModeUi))
+            }
         )
-    )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        NumberField(
+            value = state.value.roundedResultNumber,
+            onValueChange = { },
+            placeholder = "Rounded result",
+            readOnly = true
+        )
+
+    }
 }
